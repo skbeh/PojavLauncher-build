@@ -93,6 +93,8 @@ jobs:
           unset GITHUB_ACTIONS
           # Build the launcher
           gradle :app_pojavlauncher:assembleRelease
+          ls -l app_pojavlauncher/build/outputs/apk/
+          ls -l app_pojavlauncher/build/outputs/apk/release/
           mv app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release.apk out/app-release.apk
 
       - name: Build APK without runtime
