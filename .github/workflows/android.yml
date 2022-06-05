@@ -93,7 +93,8 @@ jobs:
           unset GITHUB_ACTIONS
           # Build the launcher
           gradle :app_pojavlauncher:assembleRelease
-          apksigner sign --ks ~/.android/debug.keystore --ks-pass pass:android --ks-key-alias android --out out/app-release.apk app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release-unsigned.apk
+          ls -l /usr/lib/android-sdk/build-tools/
+          /usr/lib/android-sdk/build-tools/31.0.0/apksigner sign --ks ~/.android/debug.keystore --ks-pass pass:android --ks-key-alias android --out out/app-release.apk app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release-unsigned.apk
 
       - name: Build APK without runtime
         run: |
