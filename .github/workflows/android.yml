@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+        with:
+          repository: "PojavLauncherTeam/PojavLauncher"
 
       - name: Remove online account limit
         run: sed -i 's/mProfile.accessToken.equals("0")/false/g' app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/BaseLauncherActivity.java
