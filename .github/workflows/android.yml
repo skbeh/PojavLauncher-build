@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Install dependencies
-        run: sudo apt install -y apksigner
+        run: |
+          sudo apt update
+          sudo apt install -y apksigner
 
       - uses: actions/checkout@v3
         with:
