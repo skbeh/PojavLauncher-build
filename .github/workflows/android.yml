@@ -21,6 +21,10 @@ jobs:
           distribution: "temurin"
           java-version: "8"
 
+      - uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: current
+
       - name: Get gl4es latest commit hash
         id: gl4es-sha
         run: echo "::set-output name=sha::$(echo $(git ls-remote https://github.com/PojavLauncherTeam/gl4es-114-extra refs/heads/master | grep -io '^\S*'))"
@@ -41,12 +45,14 @@ jobs:
 
       - name: Build gl4es
         if: steps.gl4es-cache.outputs.cache-hit != 'true'
-        continue-on-error: true
+        # continue-on-error: true
         run: |
           cd gl4es
-          git config --global user.email "github-actions@users.noreply.github.com"
-          git config --global user.name "github-actions"
+          git config --global user.email 'github-actions@users.noreply.github.com'
+          git config --global user.name 'github-actions'
           $ANDROID_NDK_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk
+          ls -l ../app_pojavlauncher/src/main
+          mkdir ../app_pojavlauncher/src/main/jniLibs
           cp -R libs/* ../app_pojavlauncher/src/main/jniLibs/
 
       - name: Get JRE 8
@@ -78,16 +84,15 @@ jobs:
           bash scripts/languagelist_updater.sh
 
           mkdir -p out
-          chmod +x gradlew
-          ./gradlew clean
+          gradle clean
           # Build JRE JAR files (security manager, etc...)
-          ./gradlew :jre_lwjgl3glfw:build
+          gradle :jre_lwjgl3glfw:build
 
       - name: Build APK
         run: |
           unset GITHUB_ACTIONS
           # Build the launcher
-          ./gradlew :app_pojavlauncher:assembleRelease
+          gradle :app_pojavlauncher:assembleRelease
           mv app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release.apk out/app-release.apk
 
       - name: Build APK without runtime
@@ -95,7 +100,7 @@ jobs:
           unset GITHUB_ACTIONS
           rm -r app_pojavlauncher/src/main/assets/components/jre
           rm -r app_pojavlauncher/src/main/assets/components/jre-new
-          ./gradlew assembleRelease
+          gradle assembleRelease
           mv app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release.apk out/app-release-noruntime.apk
 
       - name: Upload APK
