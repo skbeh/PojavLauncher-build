@@ -47,15 +47,12 @@ jobs:
 
       - name: Build gl4es
         if: steps.gl4es-cache.outputs.cache-hit != 'true'
-        # continue-on-error: true
         run: |
           cd gl4es
           git config --global user.email 'github-actions@users.noreply.github.com'
           git config --global user.name 'github-actions'
           $ANDROID_NDK_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk
-          ls -l ../app_pojavlauncher/src/main
-          mkdir ../app_pojavlauncher/src/main/jniLibs
-          cp -R libs/* ../app_pojavlauncher/src/main/jniLibs/
+          cp -r libs/* ../app_pojavlauncher/src/main/jniLibs/
 
       - name: Get JRE 8
         uses: dawidd6/action-download-artifact@v2
