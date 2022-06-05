@@ -93,12 +93,17 @@ jobs:
           # Build JRE JAR files (security manager, etc...)
           gradle :jre_lwjgl3glfw:build
 
+      - name: Get test key
+        run: |
+          wget https://raw.githubusercontent.com/aosp-mirror/platform_build/master/target/product/security/testkey.pk8
+          wget https://raw.githubusercontent.com/aosp-mirror/platform_build/master/target/product/security/testkey.x509.pem
+
       - name: Build APK
         run: |
           unset GITHUB_ACTIONS
           # Build the launcher
           gradle :app_pojavlauncher:assembleRelease
-          apksigner sign --ks ~/.android/debug.keystore --ks-pass pass:android --ks-key-alias android --out out/app-release.apk app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release-unsigned.apk
+          apksigner sign --key testkey.pk8 --cert testkey.x509.pem --out out/app-release.apk app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release-unsigned.apk
 
       - name: Build APK without runtime
         run: |
@@ -106,7 +111,7 @@ jobs:
           rm -r app_pojavlauncher/src/main/assets/components/jre
           rm -r app_pojavlauncher/src/main/assets/components/jre-new
           gradle assembleRelease
-          apksigner sign --ks ~/.android/debug.keystore --ks-pass pass:android --ks-key-alias android --out out/app-release-noruntime.apk app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release-unsigned.apk
+          apksigner sign --key testkey.pk8 --cert testkey.x509.pem --out out/app-release-noruntime.apk app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
