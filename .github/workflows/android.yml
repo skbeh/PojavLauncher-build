@@ -14,8 +14,10 @@ jobs:
         with:
           repository: "PojavLauncherTeam/PojavLauncher"
 
-      - name: Remove online account limit
-        run: sed -i 's/mProfile.accessToken.equals("0")/false/g' app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/BaseLauncherActivity.java
+      - name: Patch source
+        run: |
+          sed -i 's/mProfile.accessToken.equals("0")/false/g' app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/BaseLauncherActivity.java
+          echo 'duplicatesStrategy = DuplicatesStrategy.EXCLUDE' >> jre_lwjgl3glfw/build.gradle
 
       - name: Set up JDK 8
         uses: actions/setup-java@v3
@@ -80,10 +82,9 @@ jobs:
         run: |
           cp -r gl4es/libs/* app_pojavlauncher/src/main/jniLibs/
           chmod +x scripts/languagelist_updater.sh
-          bash scripts/languagelist_updater.sh
+          ./scripts/languagelist_updater.sh
 
-          mkdir -p out
-          gradle clean
+          mkdir out
           # Build JRE JAR files (security manager, etc...)
           gradle :jre_lwjgl3glfw:build
 
