@@ -81,7 +81,7 @@ jobs:
           workflow: build-17.yml
           path: app_pojavlauncher/src/main/assets/components/jre-new
           workflow_conclusion: success
-          repo: skbeh/android-openjdk-build-multiarch
+          repo: skbeh/android-openjdk-build-multiarch-action
           branch: main
           name: jre17-pojav
 
