@@ -21,6 +21,7 @@ jobs:
 
       - name: Patch source
         run: |
+          echo 'org.gradle.jvmargs=--add-opens=java.base/java.io=ALL-UNNAMED' >>gradle.properties
           sed -i 's/mProfile.accessToken.equals("0")/false/g' app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/BaseLauncherActivity.java
           sed -i '/jar {/a duplicatesStrategy(DuplicatesStrategy.EXCLUDE)' jre_lwjgl3glfw/build.gradle
           sed -i '/release {/a signingConfig signingConfigs.customDebug' app_pojavlauncher/build.gradle
