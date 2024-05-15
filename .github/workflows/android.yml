@@ -15,7 +15,7 @@ jobs:
           sudo apt update
           sudo apt install -y apksigner
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: 'PojavLauncherTeam/PojavLauncher'
 
@@ -26,46 +26,18 @@ jobs:
           sed -i '/release {/a signingConfig signingConfigs.customDebug' app_pojavlauncher/build.gradle
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/actions/setup-gradle@v3
         with:
-          gradle-version: 7.6.1
-
-      - name: Get gl4es latest commit hash
-        id: gl4es-sha
-        run: echo "sha=$(git ls-remote https://github.com/PojavLauncherTeam/gl4es-114-extra refs/heads/master | grep -io '^\S*')" >> $GITHUB_OUTPUT
-
-      - name: Cache gl4es
-        uses: actions/cache@v3
-        id: gl4es-cache
-        with:
-          path: gl4es/libs
-          key: gl4es-holy-android-shared-${{ steps.gl4es-sha.outputs.sha }}
-
-      - name: Get gl4es
-        if: steps.gl4es-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v3
-        with:
-          repository: 'PojavLauncherTeam/gl4es-114-extra'
-          path: 'gl4es'
-
-      - name: Build gl4es
-        if: steps.gl4es-cache.outputs.cache-hit != 'true'
-        run: |
-          cd gl4es
-          git config --global user.email 'github-actions@users.noreply.github.com'
-          git config --global user.name 'github-actions'
-          $ANDROID_NDK_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk
-          cp -r libs/* ../app_pojavlauncher/src/main/jniLibs/
+          gradle-version: 7.6.4
 
       - name: Get JRE 8
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: build.yml
           path: app_pojavlauncher/src/main/assets/components/jre
           workflow_conclusion: success
@@ -74,25 +46,22 @@ jobs:
           name: jre8-pojav
 
       - name: Get JRE17
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build-17.yml
+          workflow: build.yml
           path: app_pojavlauncher/src/main/assets/components/jre-new
           workflow_conclusion: success
-          repo: skbeh/android-openjdk-build-multiarch-action
-          branch: main
+          repo: PojavLauncherTeam/android-openjdk-build-multiarch
+          branch: buildjre17
           name: jre17-pojav
 
       - name: Build JRE JAR files
         run: |
-          cp -r gl4es/libs/* app_pojavlauncher/src/main/jniLibs/
-          chmod +x scripts/languagelist_updater.sh
           ./scripts/languagelist_updater.sh
 
           mkdir out
           # Build JRE JAR files (security manager, etc...)
-          gradle :jre_lwjgl3glfw:build
+          gradle :jre_lwjgl3glfw:build --no-daemon
 
       - name: Build APK
         run: |
@@ -100,7 +69,7 @@ jobs:
           gradle :app_pojavlauncher:assembleRelease
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release.apk
